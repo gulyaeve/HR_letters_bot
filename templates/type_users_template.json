@@ -1,0 +1,7 @@
+{
+  "type_users": [
+    "user",
+    "manager",
+    "admin"
+  ]
+}
