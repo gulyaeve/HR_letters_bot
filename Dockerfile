@@ -6,4 +6,4 @@ COPY requirements.txt ./
 RUN pip install --upgrade pip
 RUN pip install -r requirements.txt
 COPY . .
-RUN mkdir /src/logs
+RUN mkdir ./logs
