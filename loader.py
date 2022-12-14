@@ -5,6 +5,7 @@ from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from config import Config
 from utils.db_api.db import Database
+from utils.db_api.staff import Staff
 from utils.db_api.usersdb import UsersDB
 from utils.db_api.messages import Messages
 
@@ -15,9 +16,11 @@ storage = RedisStorage2(host=Config.REDIS_HOST, port=Config.REDIS_PORT)
 dp = Dispatcher(bot, storage=storage)
 
 # Database objects
-db = Database()
+# db = Database()
 # Users from database
 users = UsersDB()
+# Staff database
+staff = Staff()
 # Messages from database
 messages = Messages()
 
