@@ -54,7 +54,7 @@ async def auth_user_email(message: types.Message):
 async def phone_confirm(message: types.Message, state: FSMContext):
     if message.contact.user_id == message.from_user.id:
         phone = message.contact.phone_number.replace('+', '')
-        employee = staff.select_employee(phone=phone)
+        employee = await staff.select_employee(phone=phone)
         if employee is not None:
             log(INFO, f"Update phone {message.contact.phone_number} for {message.from_user.id}")
             await users.update_user_phone(message.contact.phone_number, message.from_user.id)

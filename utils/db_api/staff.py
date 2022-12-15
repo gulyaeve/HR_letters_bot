@@ -45,9 +45,9 @@ class Staff(Database):
         sql = "UPDATE staff SET telegram_id=$1 WHERE email=$2"
         return await self.execute(sql, telegram_id, email, execute=True)
 
-    async def logout_employee(self, user_id):
-        sql = "UPDATE staff SET telegram_id=NULL WHERE id=$1"
-        return await self.execute(sql, user_id, execute=True)
+    async def logout_employee(self, telegram_id):
+        sql = "UPDATE staff SET telegram_id=NULL WHERE telegram_id=$1"
+        return await self.execute(sql, telegram_id, execute=True)
 
     async def find_employee(self, keyword):
         sql = "SELECT * FROM staff WHERE LOWER(concat(lastname, ' ', firstname)) LIKE '%' || LOWER($1) || '%'"
