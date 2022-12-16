@@ -49,9 +49,9 @@ class PostcardsClient:
         list_of_types = await self._get_json("/categories", None)
         return list_of_types['data']
 
-    async def get_postcards_list_by_type(self, type: str) -> list:
+    async def get_postcards_list_by_type(self, category: str) -> list:
         params = {
-            "category": type
+            "category": category
         }
         list_of_postcards = await self._get_json("/postcards", params)
         return list_of_postcards['data']
