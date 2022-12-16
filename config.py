@@ -30,3 +30,5 @@ class Config:
     # Redis
     REDIS_HOST = env.str("REDIS_HOST")
     REDIS_PORT = env.int("REDIS_PORT")
+
+    POSTCARDS_HOST = env.str("POSTCARDS_HOST")

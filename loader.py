@@ -4,6 +4,7 @@ from aiogram import Bot, Dispatcher, types
 from aiogram.contrib.fsm_storage.redis import RedisStorage2
 
 from config import Config
+from misc.postcard_api import PostcardsClient
 from utils.db_api.db import Database
 from utils.db_api.staff import Staff
 from utils.db_api.usersdb import UsersDB
@@ -23,6 +24,8 @@ users = UsersDB()
 staff = Staff()
 # Messages from database
 messages = Messages()
+# Postcards client:
+postcards = PostcardsClient()
 
 # Logging setup
 logging.basicConfig(handlers=(logging.FileHandler('logs/log.txt'), logging.StreamHandler()),
