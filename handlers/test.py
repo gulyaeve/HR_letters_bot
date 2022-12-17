@@ -41,21 +41,28 @@ async def categories_buttons(message: types.Message):
 
 
 @dp.callback_query_handler(Text(startswith='page_'))
-# @dp.callback_query_handler(Text(startswith=OrderCallbacks.order.value), state="comment_to_date")
+@dp.callback_query_handler(Text(startswith=PostcardMenu.back.value), state=Thanks.ChooseTemplate)
 # @dp.callback_query_handler(Text(startswith=OrderCallbacks.order.value), state="cancel_order")
 # @dp.callback_query_handler(Regexp("cbcal_([0-9]*)_n"))
 # @dp.callback_query_handler(Text(startswith=OrderCallbacks.back.value))
-async def category_other_page(callback: types.CallbackQuery):
-    # await state.finish()
+async def category_other_page(callback: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     page_n = 0
     if callback.data.startswith("page_"):
         page_n = int(callback.data.split("_")[1])
     categories_list = await postcards.get_postcards_types()
 
-    await callback.message.edit_text(
-        "Выбери категорию:",
-        reply_markup=(await make_inline_categories(categories_list, current_page=page_n))
-    )
+    if callback.message.text:
+        await callback.message.edit_text(
+            "Выбери категорию:",
+            reply_markup=(await make_inline_categories(categories_list, current_page=page_n))
+        )
+    else:
+        await callback.message.delete()
+        await callback.message.answer(
+            "Выбери категорию:",
+            reply_markup=(await make_inline_categories(categories_list, current_page=page_n))
+        )
 
 
 @dp.callback_query_handler(Text(startswith="category="))
@@ -68,6 +75,7 @@ async def preview_chooser(callback: types.CallbackQuery, state: FSMContext):
         data['category'] = category
 
     postcard = await postcards.get_preview(category, images[data['pic']])
+    await callback.message.delete()
     await callback.message.answer_photo(postcard, reply_markup=PostcardSelector.postcards_menu)
     await Thanks.ChooseTemplate.set()
 
