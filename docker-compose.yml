@@ -34,7 +34,7 @@ services:
     restart: always
     env_file:
       - ".env.dev"
-    command: python app.py
+#    command: python app.py
     volumes:
       - .:/src
     depends_on:
