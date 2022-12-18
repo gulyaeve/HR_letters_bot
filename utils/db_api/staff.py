@@ -58,7 +58,7 @@ class Staff(Database):
             time_created timestamp DEFAULT now()
         );
         """
-        await self.execute(sql, execute=True)
+        await self._execute(sql, execute=True)
 
     @staticmethod
     async def _format_employee(record: asyncpg.Record) -> Employee:
@@ -77,32 +77,32 @@ class Staff(Database):
     async def add_employee(self, firstname, lastname, middlename, phone, email, day_birth, month_birth):
         sql = "INSERT INTO staff (firstname, lastname, middlename, phone, email, day_birth, month_birth) " \
               "VALUES($1, $2, $3, $4, $5, $6, $7) returning *"
-        return await self.execute(sql, firstname, lastname, middlename, phone, email, day_birth, month_birth,
-                                  fetchrow=True)
+        return await self._execute(sql, firstname, lastname, middlename, phone, email, day_birth, month_birth,
+                                   fetchrow=True)
 
     async def select_all_employees(self) -> Employees:
         sql = "SELECT * FROM staff ORDER BY lastname ASC"
-        list_of_records = await self.execute(sql, fetch=True)
+        list_of_records = await self._execute(sql, fetch=True)
         return Employees([await self._format_employee(record) for record in list_of_records])
 
     async def select_employee(self, **kwargs):
         sql = "SELECT * FROM staff WHERE "
-        sql, parameters = self.format_args(sql, parameters=kwargs)
-        record: asyncpg.Record = await self.execute(sql, *parameters, fetchrow=True)
+        sql, parameters = self._format_args(sql, parameters=kwargs)
+        record: asyncpg.Record = await self._execute(sql, *parameters, fetchrow=True)
         return await self._format_employee(record)
 
     async def update_employee_by_phone(self, telegram_id, phone):
         sql = "UPDATE staff SET telegram_id=$1 WHERE phone=$2"
-        return await self.execute(sql, telegram_id, phone, execute=True)
+        return await self._execute(sql, telegram_id, phone, execute=True)
 
     async def update_employee_by_email(self, telegram_id, email):
         sql = "UPDATE staff SET telegram_id=$1 WHERE email=$2"
-        return await self.execute(sql, telegram_id, email, execute=True)
+        return await self._execute(sql, telegram_id, email, execute=True)
 
     async def logout_employee(self, telegram_id):
         sql = "UPDATE staff SET telegram_id=NULL WHERE telegram_id=$1"
-        return await self.execute(sql, telegram_id, execute=True)
+        return await self._execute(sql, telegram_id, execute=True)
 
     async def find_employee(self, keyword):
         sql = "SELECT * FROM staff WHERE LOWER(concat(lastname, ' ', firstname)) LIKE '%' || LOWER($1) || '%'"
-        return await self.execute(sql, keyword, fetch=True)
+        return await self._execute(sql, keyword, fetch=True)

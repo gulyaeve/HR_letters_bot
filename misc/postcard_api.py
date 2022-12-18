@@ -34,7 +34,7 @@ class PostcardsClient:
                     f'{self.link}{route}',
                     params=params if params is not None else {}
             ) as resp:
-                logging.info(f"{resp.status=} {self.link}{route}")
+                logging.info(f"{resp.status=} {self.link}{route} {params=}")
                 return await resp.read()
 
     async def get_postcard(self, text: str, category: str, template: str):

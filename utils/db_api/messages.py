@@ -24,40 +24,40 @@ class Messages(Database):
             content text
         );
         """
-        await self.execute(sql, execute=True)
+        await self._execute(sql, execute=True)
 
     # Типы сообщений
     async def add_message_type(self, message_type):
         sql = "INSERT INTO messages_type_list (message_type) VALUES($1) returning *"
-        return await self.execute(sql, message_type, fetchrow=True)
+        return await self._execute(sql, message_type, fetchrow=True)
 
     async def select_message_type(self, **kwargs):
         sql = "SELECT * FROM messages_type_list WHERE "
-        sql, parameters = self.format_args(sql, parameters=kwargs)
-        return await self.execute(sql, *parameters, fetchrow=True)
+        sql, parameters = self._format_args(sql, parameters=kwargs)
+        return await self._execute(sql, *parameters, fetchrow=True)
 
     async def select_all_message_types(self):
         sql = "SELECT * FROM messages_type_list"
-        return await self.execute(sql, fetch=True)
+        return await self._execute(sql, fetch=True)
 
     # Сообщения
     async def add_message(self, description, message_type, content):
         sql = "INSERT INTO messages (description, message_type, content) VALUES($1, $2, $3) returning *"
-        return await self.execute(sql, description, message_type, content, fetchrow=True)
+        return await self._execute(sql, description, message_type, content, fetchrow=True)
 
     async def select_messages_by_type(self, message_type):
         sql = "SELECT * FROM messages WHERE message_type=$1"
-        return await self.execute(sql, message_type, fetch=True)
+        return await self._execute(sql, message_type, fetch=True)
 
     async def get_message_content(self, description):
-        return await self.execute("SELECT content FROM messages WHERE description=$1", description, fetchval=True)
+        return await self._execute("SELECT content FROM messages WHERE description=$1", description, fetchval=True)
 
     async def get_message_content_by_id(self, message_id):
-        return await self.execute("SELECT content FROM messages WHERE id=$1", message_id, fetchval=True)
+        return await self._execute("SELECT content FROM messages WHERE id=$1", message_id, fetchval=True)
 
     async def update_text_content(self, new_text, message_id):
         sql = "UPDATE messages SET content=$1 WHERE id=$2"
-        return await self.execute(sql, new_text, message_id, execute=True)
+        return await self._execute(sql, new_text, message_id, execute=True)
 
     async def create_message_type(self, message_type: str):
         """

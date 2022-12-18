@@ -13,19 +13,19 @@ class Database:
 
     # Методы для работы с БД
     @staticmethod
-    def format_args(sql, parameters: dict):
+    def _format_args(sql, parameters: dict):
         sql += " AND ".join([
             f"{item} = ${num}" for num, item in enumerate(parameters.keys(),
                                                           start=1)
         ])
         return sql, tuple(parameters.values())
 
-    async def execute(self, command, *args,
-                      fetch: bool = False,
-                      fetchval: bool = False,
-                      fetchrow: bool = False,
-                      execute: bool = False
-                      ):
+    async def _execute(self, command, *args,
+                       fetch: bool = False,
+                       fetchval: bool = False,
+                       fetchrow: bool = False,
+                       execute: bool = False
+                       ):
         async with self._transaction() as connection:  # type: asyncpg.Connection
             if fetch:
                 result = await connection.fetch(command, *args)
