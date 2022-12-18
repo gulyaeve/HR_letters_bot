@@ -1,6 +1,40 @@
 import asyncio
+from dataclasses import dataclass
+from typing import Sequence
+
+import asyncpg
 
 from utils.db_api.db import Database
+
+
+@dataclass
+class Employee:
+    id: int
+    telegram_id: int
+    lastname: str
+    firstname: str
+    middlename: str
+    phone: str
+    email: str
+    day_birth: int
+    month_birth: int
+
+    def full_name(self):
+        return f"{self.lastname} {self.firstname} {self.middlename}"
+
+
+class Employees:
+    def __init__(self, users: Sequence[Employee]):
+        self._users = users
+
+    def __getitem__(self, key: int) -> Employee:
+        return self._users[key]
+
+    async def lastname_first_letters(self):
+        letters = set()
+        for user in self._users:
+            letters.add(user.lastname[0])
+        return sorted(list(letters))
 
 
 class Staff(Database):
@@ -26,16 +60,36 @@ class Staff(Database):
         """
         await self.execute(sql, execute=True)
 
+    @staticmethod
+    async def _format_employee(record: asyncpg.Record) -> Employee:
+        return Employee(
+            id=record['id'],
+            telegram_id=record['telegram_id'],
+            lastname=record['lastname'],
+            firstname=record['firstname'],
+            middlename=record['middlename'],
+            phone=record['phone'],
+            email=record['email'],
+            day_birth=record['day_birth'],
+            month_birth=record['month_birth'],
+        )
+
     async def add_employee(self, firstname, lastname, middlename, phone, email, day_birth, month_birth):
         sql = "INSERT INTO staff (firstname, lastname, middlename, phone, email, day_birth, month_birth) " \
               "VALUES($1, $2, $3, $4, $5, $6, $7) returning *"
         return await self.execute(sql, firstname, lastname, middlename, phone, email, day_birth, month_birth,
                                   fetchrow=True)
 
+    async def select_all_employees(self) -> Employees:
+        sql = "SELECT * FROM staff ORDER BY lastname ASC"
+        list_of_records = await self.execute(sql, fetch=True)
+        return Employees([await self._format_employee(record) for record in list_of_records])
+
     async def select_employee(self, **kwargs):
         sql = "SELECT * FROM staff WHERE "
         sql, parameters = self.format_args(sql, parameters=kwargs)
-        return await self.execute(sql, *parameters, fetchrow=True)
+        record: asyncpg.Record = await self.execute(sql, *parameters, fetchrow=True)
+        return await self._format_employee(record)
 
     async def update_employee_by_phone(self, telegram_id, phone):
         sql = "UPDATE staff SET telegram_id=$1 WHERE phone=$2"

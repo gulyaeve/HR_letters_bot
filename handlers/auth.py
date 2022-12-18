@@ -89,10 +89,10 @@ async def no_phone(message: types.Message, state: FSMContext):
 async def enter_code(message: types.Message, state: FSMContext):
     email = message.text.lower()
     if match(email_pattern, message.text):
-        user = await staff.select_employee(email=email)
-        if user is not None:
+        employee = await staff.select_employee(email=email)
+        if employee is not None:
             code = randrange(1, 10 ** 6)
-            log(msg=f"Generate [{code=}]; [{user['id']=}]; [{email=}]; [{message.from_user.id=}]",
+            log(msg=f"Generate [{code=}]; [{employee.id=}]; [{email=}]; [{message.from_user.id=}]",
                 level=INFO)
             me = await get_bot_info()
             await send_email(email, f"{me.full_name} Authorization", f"Здраствуйте! Ваш код подтверждения: {code}")
