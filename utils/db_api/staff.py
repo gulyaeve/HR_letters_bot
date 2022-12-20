@@ -20,7 +20,18 @@ class Employee:
     month_birth: int | None
 
     def full_name(self):
-        return f"{self.lastname} {self.firstname} {self.middlename}"
+        if self.middlename:
+            return f"{self.lastname} {self.firstname} {self.middlename}"
+        else:
+            return f"{self.lastname} {self.firstname}"
+
+    def __str__(self):
+        result = f"{self.full_name()} "
+        if self.email:
+            result += "📧"
+        if self.telegram_id:
+            result += "💬"
+        return result
 
 
 class Employees:

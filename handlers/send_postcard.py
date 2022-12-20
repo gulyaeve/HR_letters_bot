@@ -105,7 +105,7 @@ async def choose_employee_by_letter_page(callback: types.CallbackQuery):
         if employee.lastname[0] == letter:
             inline_keyboard.add(
                 types.InlineKeyboardButton(
-                    text=f"{employee.full_name()}",
+                    text=f"{str(employee)}",
                     callback_data=f"employee={employee.id}"
                 )
             )
