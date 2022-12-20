@@ -10,6 +10,7 @@ async def set_default_commands():
     return await dp.bot.set_my_commands([
         types.BotCommand(command="/start", description="Начать работу с чат-ботом"),
         types.BotCommand(command="/auth", description="Авторизация"),
+        types.BotCommand(command="/send_postcard", description="Отправить открытку коллеге"),
         types.BotCommand(command="/help", description="Помощь по командам чат-бота"),
         types.BotCommand(command="/cancel", description="Отмена текущего действия"),
     ])
