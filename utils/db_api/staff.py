@@ -10,7 +10,7 @@ from utils.db_api.db import Database
 @dataclass
 class Employee:
     id: int
-    telegram_id: int
+    telegram_id: int | None
     lastname: str
     firstname: str
     middlename: str
