@@ -41,7 +41,9 @@ async def select_employee(message: types.Message):
 
 
 @dp.callback_query_handler(Text(equals="back_to_letters"))
-async def back_select_employee(callback: types.CallbackQuery):
+@dp.callback_query_handler(Text(equals="back_to_letters"), state="*")
+async def back_select_employee(callback: types.CallbackQuery, state: FSMContext):
+    await state.finish()
     all_employees = await staff.select_all_employees()
     letters_list = await all_employees.lastname_first_letters()
     inline_keyboard = types.InlineKeyboardMarkup(row_width=7)
@@ -79,11 +81,17 @@ async def choose_employee_by_letter(callback: types.CallbackQuery):
             callback_data='back_to_letters'
         )
     )
-    await callback.message.delete()
-    await callback.message.answer(
-        await messages.get_message('choose_employee_name'),
-        reply_markup=keyboard
-    )
+    if callback.message.text:
+        await callback.message.edit_text(
+            await messages.get_message('choose_employee_name'),
+            reply_markup=keyboard
+        )
+    else:
+        await callback.message.delete()
+        await callback.message.answer(
+            await messages.get_message('choose_employee_name'),
+            reply_markup=keyboard
+        )
 
 
 @dp.callback_query_handler(Text(startswith="employees_"))
@@ -121,7 +129,9 @@ async def input_text_to_postcard(callback: types.CallbackQuery, state: FSMContex
     async with state.proxy() as data:
         data['employee_id_to_sent'] = employee_to_sent
 
-    await callback.message.edit_text(await messages.get_message("input_text"))
+    await callback.message.edit_text(
+        await messages.get_message("input_text"),
+    )
     await Thanks.TypeMessage.set()
 
 
@@ -139,12 +149,12 @@ async def type_thanks(message: types.Message, state: FSMContext):
         categories=categories_list,
         current_page=0
     )
-    # keyboard.add(
-    #     types.InlineKeyboardButton(
-    #         text="◀️",
-    #         callback_data='back_to_letters'
-    #     )
-    # )
+    keyboard.add(
+        types.InlineKeyboardButton(
+            text="◀️",
+            callback_data='back_to_letters'
+        )
+    )
 
     await message.answer(
         "Выбери категорию:",
@@ -161,18 +171,25 @@ async def category_other_page(callback: types.CallbackQuery, state: FSMContext):
     if callback.data.startswith("page_"):
         page_n = int(callback.data.split("_")[1])
     categories_list = await postcards.get_postcards_types()
+    keyboard = await make_inline_categories(categories_list, current_page=page_n)
+    keyboard.add(
+        types.InlineKeyboardButton(
+            text="◀️",
+            callback_data='back_to_letters'
+        )
+    )
 
-    if callback.message.text:
-        await callback.message.edit_text(
-            await messages.get_message("choose_category"),
-            reply_markup=(await make_inline_categories(categories_list, current_page=page_n))
-        )
-    else:
-        await callback.message.delete()
-        await callback.message.answer(
-            await messages.get_message("choose_category"),
-            reply_markup=(await make_inline_categories(categories_list, current_page=page_n))
-        )
+    # if callback.message.text:
+    #     await callback.message.edit_text(
+    #         await messages.get_message("choose_category"),
+    #         reply_markup=keyboard,
+    #     )
+    # else:
+    await callback.message.delete()
+    await callback.message.answer(
+        await messages.get_message("choose_category"),
+        reply_markup=keyboard,
+    )
 
 
 @dp.callback_query_handler(Text(startswith="category="), state=Thanks.ChooseTemplate)
