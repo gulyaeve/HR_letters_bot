@@ -13,11 +13,11 @@ class Employee:
     telegram_id: int | None
     lastname: str
     firstname: str
-    middlename: str
+    middlename: str | None
     phone: str
     email: str
-    day_birth: int
-    month_birth: int
+    day_birth: int | None
+    month_birth: int | None
 
     def full_name(self):
         return f"{self.lastname} {self.firstname} {self.middlename}"
