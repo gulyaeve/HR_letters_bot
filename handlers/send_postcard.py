@@ -40,6 +40,11 @@ async def select_employee(message: types.Message):
     )
 
 
+@dp.message_handler(commands=['send_postcard'])
+async def select_employee_no_auth(message: types.Message):
+    await message.reply(await messages.get_message("auth_mention"))
+
+
 @dp.callback_query_handler(Text(equals="back_to_letters"))
 @dp.callback_query_handler(Text(equals="back_to_letters"), state="*")
 async def back_select_employee(callback: types.CallbackQuery, state: FSMContext):
@@ -202,7 +207,8 @@ async def preview_chooser(callback: types.CallbackQuery, state: FSMContext):
         data['pic'] = 0
         data['category'] = category
 
-    postcard = await postcards.get_preview(category, images[data['pic']])
+    # postcard = await postcards.get_preview(category, images[data['pic']])
+    postcard = await postcards.get_postcard(data['message'], category, images[data['pic']])
     await callback.message.delete()
     await callback.message.answer_photo(postcard, reply_markup=PostcardSelector.postcards_menu)
     await Thanks.ChooseTemplate.set()
@@ -217,10 +223,11 @@ async def send_prev_pic(callback: types.CallbackQuery, state: FSMContext):
     new_idx = (idx - 1) % len(images)
     async with state.proxy() as data:
         data['pic'] = new_idx
-    postcard_preview = await postcards.get_preview(category, images[data['pic']])
+    # postcard_preview = await postcards.get_preview(category, images[data['pic']])
+    postcard = await postcards.get_postcard(data['message'], category, images[data['pic']])
     await callback.message.delete()
     await callback.message.answer_photo(
-        postcard_preview,
+        postcard,
         reply_markup=PostcardSelector.postcards_menu
     )
 
@@ -234,47 +241,48 @@ async def send_next_pic(callback: types.CallbackQuery, state: FSMContext):
     new_idx = (idx + 1) % len(images)
     async with state.proxy() as data:
         data['pic'] = new_idx
-    postcard_preview = await postcards.get_preview(category, images[data['pic']])
-    await callback.message.delete()
-    await callback.message.answer_photo(
-        postcard_preview,
-        reply_markup=PostcardSelector.postcards_menu
-    )
-
-
-@dp.callback_query_handler(text=PostcardMenu.ok.value, state=Thanks.ChooseTemplate)
-async def send_postcard(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    category = data['category']
-    images = await postcards.get_postcards_list_by_type(category)
-
-    postcard = await postcards.get_postcard(
-        text=data["message"],
-        category=category,
-        template=images[data['pic']]
-    )
+    # postcard_preview = await postcards.get_preview(category, images[data['pic']])
+    postcard = await postcards.get_postcard(data['message'], category, images[data['pic']])
     await callback.message.delete()
     await callback.message.answer_photo(
         postcard,
-        reply_markup=PostcardSelector.postcards_accept_menu
-    )
-
-
-@dp.callback_query_handler(text=PostcardMenu.decline.value, state=Thanks.ChooseTemplate)
-async def cancel_postcard(callback: types.CallbackQuery, state: FSMContext):
-    data = await state.get_data()
-    category = data['category']
-    images = await postcards.get_postcards_list_by_type(category)
-
-    postcard_preview = await postcards.get_preview(category, images[data['pic']])
-    await callback.message.delete()
-    await callback.message.answer_photo(
-        postcard_preview,
         reply_markup=PostcardSelector.postcards_menu
     )
 
 
-@dp.callback_query_handler(text=PostcardMenu.accept.value, state=Thanks.ChooseTemplate)
+# @dp.callback_query_handler(text=PostcardMenu.ok.value, state=Thanks.ChooseTemplate)
+# async def send_postcard(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     category = data['category']
+#     images = await postcards.get_postcards_list_by_type(category)
+#
+#     postcard = await postcards.get_postcard(
+#         text=data["message"],
+#         category=category,
+#         template=images[data['pic']]
+#     )
+#     await callback.message.delete()
+#     await callback.message.answer_photo(
+#         postcard,
+#         reply_markup=PostcardSelector.postcards_accept_menu
+#     )
+
+
+# @dp.callback_query_handler(text=PostcardMenu.decline.value, state=Thanks.ChooseTemplate)
+# async def cancel_postcard(callback: types.CallbackQuery, state: FSMContext):
+#     data = await state.get_data()
+#     category = data['category']
+#     images = await postcards.get_postcards_list_by_type(category)
+#
+#     postcard_preview = await postcards.get_preview(category, images[data['pic']])
+#     await callback.message.delete()
+#     await callback.message.answer_photo(
+#         postcard_preview,
+#         reply_markup=PostcardSelector.postcards_menu
+#     )
+
+
+@dp.callback_query_handler(text=PostcardMenu.ok.value, state=Thanks.ChooseTemplate)
 async def accept_postcard(callback: types.CallbackQuery, state: FSMContext):
     async with state.proxy() as data:
         data['file_id'] = callback.message.photo[-1].file_id

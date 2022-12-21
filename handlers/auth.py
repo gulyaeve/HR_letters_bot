@@ -60,6 +60,7 @@ async def phone_confirm(message: types.Message, state: FSMContext):
             await users.update_user_phone(message.contact.phone_number, message.from_user.id)
             await staff.update_employee_by_phone(message.from_user.id, phone)
             await message.reply(await messages.get_message('success_auth'), reply_markup=types.ReplyKeyboardRemove())
+            await message.answer(await messages.get_message("postcard_welcome"))
             user = await users.select_user(message.from_user.id)
             await notify_admins(f"<b>Пользователь авторизовался:</b>\n{user.get_info()}")
             await state.finish()
@@ -120,7 +121,7 @@ async def code_confirm(message: types.Message, state: FSMContext):
         log(INFO, f"Success update in DB: [{user=}]")
         await notify_admins(f"<b>Пользователь авторизовался по Email:</b>\n{user.get_info()}")
         await message.answer(await messages.get_message("success_auth"))
-        # await message.answer("Теперь давай отправим твоему коллеге «Спасибо»! Нажми <b>/say_thanks</b>")
+        await message.answer(await messages.get_message("postcard_welcome"))
         await state.finish()
     else:
         log(msg=f"Enter wrong code[{message.text}]; [{message.from_user.id=}]", level=INFO)

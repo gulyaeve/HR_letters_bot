@@ -21,10 +21,6 @@ class PostcardSelector:
                     callback_data=PostcardMenu.left.value
                 ),
                 InlineKeyboardButton(
-                    text="⏪️",
-                    callback_data=PostcardMenu.back.value
-                ),
-                InlineKeyboardButton(
                     text="🆗️",
                     callback_data=PostcardMenu.ok.value
                 ),
@@ -33,6 +29,12 @@ class PostcardSelector:
                     callback_data=PostcardMenu.right.value
                 ),
             ],
+            [
+                InlineKeyboardButton(
+                    text="Назад к темам",
+                    callback_data=PostcardMenu.back.value
+                ),
+            ]
 
         ]
     )
