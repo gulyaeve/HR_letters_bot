@@ -92,6 +92,7 @@ async def sender_from_db():
 
 @dp.message_handler(ManagerCheck(), commands=['push_postcards'], run_task=True)
 async def push_postcards(message: types.Message):
-    await message.answer("Начинаю")
+    postcard_count = await postcards_db.count_postcards()
+    await message.answer(f"Общее число открыток (отправленные и не отправленные) {postcard_count}, отправка начинается")
     await sender_from_db()
-    await message.answer("Отправлено")
+    await message.answer("Отправка завершена")
