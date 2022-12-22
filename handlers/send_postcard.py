@@ -162,7 +162,7 @@ async def type_thanks(message: types.Message, state: FSMContext):
     )
 
     await message.answer(
-        "Выбери категорию:",
+        await messages.get_message("choose_category"),
         reply_markup=keyboard
     )
     await Thanks.ChooseTemplate.set()
