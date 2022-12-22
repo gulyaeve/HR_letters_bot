@@ -26,56 +26,68 @@ async def sender_from_db():
         me = await get_bot_info()
         if user_who_send:
             if user_to_send.telegram_id is not None:
-                try:
-                    await bot.send_photo(
-                        user_to_send.telegram_id,
-                        postcard.file_id,
-                        caption=f"{user_who_send.full_name()} отправляет вам благодарность"
-                    )
-                    log(INFO, f"Success send message [{user_to_send.telegram_id}]")
-                    await postcards_db.update_date_telegram_send(postcard.id)
-                except:
-                    log(INFO, f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
+                if postcard.time_sended_telegram is not None:
+                    try:
+                        await bot.send_photo(
+                            user_to_send.telegram_id,
+                            postcard.file_id,
+                            caption=f"{user_who_send.full_name()} отправляет вам благодарность"
+                        )
+                        log(INFO, f"Success send message [{user_to_send.telegram_id}]")
+                        await postcards_db.update_date_telegram_send(postcard.id)
+                    except:
+                        log(INFO, f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
+                else:
+                    log(INFO, f"[{postcard.id}] уже была отправлена {postcard.time_sended_telegram=}")
             if user_to_send.email is not None:
-                try:
-                    await send_email_photo(
-                        user_to_send.email,
-                        'Вам отправлена благодарность',
-                        f"{user_who_send.full_name()} отправляет вам благодарность.\n"
-                        f"Хочешь получать и создавать спасибки в телеграм, "
-                        f"авторизуйся здесь >> https://t.me/{me.username}/",
-                        file.getbuffer().tobytes()
-                    )
-                    log(INFO, f"Success send email [{user_to_send.email}]")
-                    await postcards_db.update_date_email_send(postcard.id)
-                except:
-                    log(INFO, f"Failed send email [{user_to_send.email}]")
+                if postcard.time_sended_email is not None:
+                    try:
+                        await send_email_photo(
+                            user_to_send.email,
+                            'Вам отправлена благодарность',
+                            f"{user_who_send.full_name()} отправляет вам благодарность.\n"
+                            f"Хочешь получать и создавать спасибки в телеграм, "
+                            f"авторизуйся здесь >> https://t.me/{me.username}/",
+                            file.getbuffer().tobytes()
+                        )
+                        log(INFO, f"Success send email [{user_to_send.email}]")
+                        await postcards_db.update_date_email_send(postcard.id)
+                    except:
+                        log(INFO, f"Failed send email [{user_to_send.email}]")
+                else:
+                    log(INFO, f"[{postcard.id}] уже была отправлена {postcard.time_sended_email=}")
         else:
             if user_to_send.telegram_id is not None:
-                try:
-                    await bot.send_photo(
-                        user_to_send.telegram_id,
-                        postcard.file_id,
-                        caption=f"Вам отправлена анонимная благодарность"
-                    )
-                    log(INFO, f"Success send message [{user_to_send.telegram_id}]")
-                    await postcards_db.update_date_telegram_send(postcard.id)
-                except:
-                    log(INFO, f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
+                if postcard.time_sended_telegram is not None:
+                    try:
+                        await bot.send_photo(
+                            user_to_send.telegram_id,
+                            postcard.file_id,
+                            caption=f"Вам отправлена анонимная благодарность"
+                        )
+                        log(INFO, f"Success send message [{user_to_send.telegram_id}]")
+                        await postcards_db.update_date_telegram_send(postcard.id)
+                    except:
+                        log(INFO, f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
+                else:
+                    log(INFO, f"[{postcard.id}] уже была отправлена {postcard.time_sended_telegram=}")
             if user_to_send.email is not None:
-                try:
-                    await send_email_photo(
-                        user_to_send.email,
-                        'Вам отправлена благодарность',
-                        f'Вам отправлена анонимная благодарность.\n'
-                        f'Хочешь получать и создавать спасибки в телеграм, '
-                        f'авторизуйся здесь >> https://t.me/{me.username}/',
-                        file.getbuffer().tobytes()
-                    )
-                    log(INFO, f"Success send email [{user_to_send.email}]")
-                    await postcards_db.update_date_email_send(postcard.id)
-                except:
-                    log(INFO, f"Failed send email [{user_to_send.email}]")
+                if postcard.time_sended_email is not None:
+                    try:
+                        await send_email_photo(
+                            user_to_send.email,
+                            'Вам отправлена благодарность',
+                            f'Вам отправлена анонимная благодарность.\n'
+                            f'Хочешь получать и создавать спасибки в телеграм, '
+                            f'авторизуйся здесь >> https://t.me/{me.username}/',
+                            file.getbuffer().tobytes()
+                        )
+                        log(INFO, f"Success send email [{user_to_send.email}]")
+                        await postcards_db.update_date_email_send(postcard.id)
+                    except:
+                        log(INFO, f"Failed send email [{user_to_send.email}]")
+                else:
+                    log(INFO, f"[{postcard.id}] уже была отправлена {postcard.time_sended_email=}")
 
 
 @dp.message_handler(ManagerCheck(), commands=['push_postcards'], run_task=True)
