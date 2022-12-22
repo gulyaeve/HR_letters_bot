@@ -36,10 +36,10 @@ async def auth_method(message: types.Message):
     await Auth.ChooseMethod.set()
 
 
-@dp.message_handler(Text(startswith='Номер'), state=Auth.ChooseMethod)
-async def auth_user_phone(message: types.Message):
-    await message.reply(await messages.get_message('auth_start'), reply_markup=auth_phone)
-    await Auth.Phone.set()
+# @dp.message_handler(state=Auth.ChooseMethod, content_types=types.ContentType.CONTACT)
+# async def auth_user_phone(message: types.Message):
+#     await message.reply(await messages.get_message('auth_start'), reply_markup=auth_phone)
+#     await Auth.Phone.set()
 
 
 @dp.message_handler(Text(startswith='Email'), state=Auth.ChooseMethod)
@@ -50,7 +50,8 @@ async def auth_user_email(message: types.Message):
     await Auth.Email.set()
 
 
-@dp.message_handler(state=Auth.Phone, content_types=types.ContentType.CONTACT)
+# @dp.message_handler(state=Auth.Phone, content_types=types.ContentType.CONTACT)
+@dp.message_handler(state=Auth.ChooseMethod, content_types=types.ContentType.CONTACT)
 async def phone_confirm(message: types.Message, state: FSMContext):
     if message.contact.user_id == message.from_user.id:
         phone = message.contact.phone_number.replace('+', '')

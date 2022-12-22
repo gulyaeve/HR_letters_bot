@@ -14,7 +14,7 @@ choose_auth = ReplyKeyboardMarkup(
     keyboard=[
         [
             KeyboardButton(text="Email ✉️"),
-            KeyboardButton(text="Номер ☎️")
+            KeyboardButton(text="Номер ☎️", request_contact=True)
         ],
     ],
     resize_keyboard=True
