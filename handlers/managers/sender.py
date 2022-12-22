@@ -10,13 +10,6 @@ from utils.email_sender import send_email_photo
 from utils.utilities import get_bot_info
 
 
-@dp.message_handler(ManagerCheck(), commands=['push_postcards'], run_task=True)
-async def push_postcards(message: types.Message):
-    await message.answer("Начинаю")
-    await sender_from_db()
-    await message.answer("Отправлено")
-
-
 async def sender_from_db():
     postcard_count = await postcards_db.count_postcards()
     log(INFO, f"{postcard_count=}")
@@ -24,11 +17,14 @@ async def sender_from_db():
         await asyncio.sleep(randint(10, 15))
         postcard = await postcards_db.select_postcard(item + 1)
         log(INFO, f"{postcard.id=}")
-        user_who_send = await staff.select_employee(id=postcard.user_id_who_sent)
+        if postcard.user_id_who_sent != 0:
+            user_who_send = await staff.select_employee(id=postcard.user_id_who_sent)
+        else:
+            user_who_send = None
         user_to_send = await staff.select_employee(id=postcard.user_id_to_sent)
         file = await bot.download_file_by_id(postcard.file_id)
         me = await get_bot_info()
-        if user_who_send is not None:
+        if user_who_send:
             if user_to_send.telegram_id is not None:
                 try:
                     await bot.send_photo(
@@ -76,3 +72,10 @@ async def sender_from_db():
                     log(INFO, f"Success send email [{user_to_send.email}]")
                 except:
                     log(INFO, f"Failed send email [{user_to_send.email}]")
+
+
+@dp.message_handler(ManagerCheck(), commands=['push_postcards'], run_task=True)
+async def push_postcards(message: types.Message):
+    await message.answer("Начинаю")
+    await sender_from_db()
+    await message.answer("Отправлено")

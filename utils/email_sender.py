@@ -43,6 +43,6 @@ async def send_email_photo(recipient, subject, message, file):
                               password=Email.email_password,
                               timeout=1,
                               start_tls=True)
-        log(msg=f"Success email[{recipient}]", level=INFO)
+        log(msg=f"Success email with photo [{recipient}] [{message}]", level=INFO)
     except Exception as _ex:
         log(msg=f"{Exception}: {_ex}: Failed to send email[{recipient}]", level=INFO)
