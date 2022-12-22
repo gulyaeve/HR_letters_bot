@@ -33,6 +33,7 @@ async def sender_from_db():
                         caption=f"{user_who_send.full_name()} отправляет вам благодарность"
                     )
                     log(INFO, f"Success send message [{user_to_send.telegram_id}]")
+                    await postcards_db.update_date_telegram_send(postcard.id)
                 except:
                     log(INFO, f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
             if user_to_send.email is not None:
@@ -46,6 +47,7 @@ async def sender_from_db():
                         file.getbuffer().tobytes()
                     )
                     log(INFO, f"Success send email [{user_to_send.email}]")
+                    await postcards_db.update_date_email_send(postcard.id)
                 except:
                     log(INFO, f"Failed send email [{user_to_send.email}]")
         else:
@@ -57,6 +59,7 @@ async def sender_from_db():
                         caption=f"Вам отправлена анонимная благодарность"
                     )
                     log(INFO, f"Success send message [{user_to_send.telegram_id}]")
+                    await postcards_db.update_date_telegram_send(postcard.id)
                 except:
                     log(INFO, f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
             if user_to_send.email is not None:
@@ -70,6 +73,7 @@ async def sender_from_db():
                         file.getbuffer().tobytes()
                     )
                     log(INFO, f"Success send email [{user_to_send.email}]")
+                    await postcards_db.update_date_email_send(postcard.id)
                 except:
                     log(INFO, f"Failed send email [{user_to_send.email}]")
 

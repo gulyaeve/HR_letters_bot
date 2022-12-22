@@ -66,3 +66,11 @@ class PostcardsDB(Database):
         sql = "SELECT * FROM postcards WHERE id=$1"
         result = await self._execute(sql, id, fetchrow=True)
         return await self._format_postcard(result)
+
+    async def update_date_telegram_send(self, id):
+        sql = "UPDATE postcards SET time_sended_telegram=now() where id=$1"
+        return await self._execute(sql, id, execute=True)
+
+    async def update_date_email_send(self, id):
+        sql = "UPDATE postcards SET time_sended_email=now() where id=$1"
+        return await self._execute(sql, id, execute=True)
