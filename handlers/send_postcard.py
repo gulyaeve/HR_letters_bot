@@ -22,7 +22,7 @@ class Thanks(StatesGroup):
     Confirm = State()
 
 
-@dp.message_handler(AuthCheck(), commands=['send_postcard'])
+@dp.message_handler(AuthCheck(), commands=['send_postcard', 'say_thanks'])
 async def select_employee(message: types.Message):
     all_employees = await staff.select_all_employees()
     letters_list = await all_employees.lastname_first_letters()
