@@ -26,7 +26,7 @@ async def sender_from_db():
         me = await get_bot_info()
         if user_who_send:
             if user_to_send.telegram_id is not None:
-                if postcard.time_sended_telegram is not None:
+                if not postcard.time_sended_telegram:
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
@@ -40,7 +40,7 @@ async def sender_from_db():
                 else:
                     log(INFO, f"[{postcard.id}] уже была отправлена {postcard.time_sended_telegram=}")
             if user_to_send.email is not None:
-                if postcard.time_sended_email is not None:
+                if not postcard.time_sended_email:
                     try:
                         await send_email_photo(
                             user_to_send.email,
@@ -58,7 +58,7 @@ async def sender_from_db():
                     log(INFO, f"[{postcard.id}] уже была отправлена {postcard.time_sended_email=}")
         else:
             if user_to_send.telegram_id is not None:
-                if postcard.time_sended_telegram is not None:
+                if not postcard.time_sended_telegram:
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
@@ -72,7 +72,7 @@ async def sender_from_db():
                 else:
                     log(INFO, f"[{postcard.id}] уже была отправлена {postcard.time_sended_telegram=}")
             if user_to_send.email is not None:
-                if postcard.time_sended_email is not None:
+                if not postcard.time_sended_email:
                     try:
                         await send_email_photo(
                             user_to_send.email,
