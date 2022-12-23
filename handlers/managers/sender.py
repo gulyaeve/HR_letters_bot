@@ -31,7 +31,7 @@ async def sender_from_db():
                         await bot.send_photo(
                             user_to_send.telegram_id,
                             postcard.file_id,
-                            caption=f"{user_who_send.full_name()} отправляет вам благодарность"
+                            caption=f"{user_who_send.full_name()} отправляет вам открытку"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
                         await postcards_db.update_date_telegram_send(postcard.id)
@@ -44,8 +44,8 @@ async def sender_from_db():
                     try:
                         await send_email_photo(
                             user_to_send.email,
-                            'Вам отправлена благодарность',
-                            f"{user_who_send.full_name()} отправляет вам благодарность.\n"
+                            'Вам отправлена открытка',
+                            f"{user_who_send.full_name()} отправляет вам открытку.\n"
                             f"Хочешь получать и создавать спасибки в телеграм, "
                             f"авторизуйся здесь >> https://t.me/{me.username}/",
                             file.getbuffer().tobytes()
@@ -63,7 +63,7 @@ async def sender_from_db():
                         await bot.send_photo(
                             user_to_send.telegram_id,
                             postcard.file_id,
-                            caption=f"Вам отправлена анонимная благодарность"
+                            caption=f"Вам отправлена анонимная открытка"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
                         await postcards_db.update_date_telegram_send(postcard.id)
@@ -76,8 +76,8 @@ async def sender_from_db():
                     try:
                         await send_email_photo(
                             user_to_send.email,
-                            'Вам отправлена благодарность',
-                            f'Вам отправлена анонимная благодарность.\n'
+                            'Вам отправлена открытка',
+                            f'Вам отправлена анонимная открытка.\n'
                             f'Хочешь получать и создавать спасибки в телеграм, '
                             f'авторизуйся здесь >> https://t.me/{me.username}/',
                             file.getbuffer().tobytes()
