@@ -41,6 +41,9 @@ class Employees:
     def __getitem__(self, key: int) -> Employee:
         return self._users[key]
 
+    def __len__(self) -> int:
+        return len(self._users)
+
     async def lastname_first_letters(self):
         letters = set()
         for user in self._users:
@@ -72,18 +75,21 @@ class Staff(Database):
         await self._execute(sql, execute=True)
 
     @staticmethod
-    async def _format_employee(record: asyncpg.Record) -> Employee:
-        return Employee(
-            id=record['id'],
-            telegram_id=record['telegram_id'],
-            lastname=record['lastname'],
-            firstname=record['firstname'],
-            middlename=record['middlename'],
-            phone=record['phone'],
-            email=record['email'],
-            day_birth=record['day_birth'],
-            month_birth=record['month_birth'],
-        )
+    async def _format_employee(record: asyncpg.Record) -> Employee | None:
+        if record:
+            return Employee(
+                id=record['id'],
+                telegram_id=record['telegram_id'],
+                lastname=record['lastname'],
+                firstname=record['firstname'],
+                middlename=record['middlename'],
+                phone=record['phone'],
+                email=record['email'],
+                day_birth=record['day_birth'],
+                month_birth=record['month_birth'],
+            )
+        else:
+            return None
 
     async def add_employee(self, firstname, lastname, middlename, phone, email, day_birth, month_birth):
         sql = "INSERT INTO staff (firstname, lastname, middlename, phone, email, day_birth, month_birth) " \
@@ -116,4 +122,5 @@ class Staff(Database):
 
     async def find_employee(self, keyword):
         sql = "SELECT * FROM staff WHERE LOWER(concat(lastname, ' ', firstname)) LIKE '%' || LOWER($1) || '%'"
-        return await self._execute(sql, keyword, fetch=True)
+        list_of_records = await self._execute(sql, keyword, fetch=True)
+        return Employees([await self._format_employee(record) for record in list_of_records])

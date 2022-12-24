@@ -3,6 +3,7 @@ from .admins import dp
 from .auth import dp
 from .logout import dp
 from .send_postcard import dp
+from .search_employee import dp
 
 from .any_text import dp
 

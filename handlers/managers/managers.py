@@ -4,6 +4,7 @@ from aiogram.dispatcher.filters import Regexp
 from aiogram.types import InlineKeyboardMarkup, InlineKeyboardButton
 from logging import log, INFO, WARN
 
+from config import Config
 from loader import dp, users
 
 
@@ -11,7 +12,9 @@ async def copy_to_managers(message: types.Message):
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text="Ответить", callback_data=f'reply_from_anytext_id={message.from_user.id}')]])
     manager_user_type = await users.select_user_type("manager")
+    admin_user_type = await users.select_user_type("admin")
     managers = await users.select_users_by_type(manager_user_type)
+    admins = await users.select_users_by_type(admin_user_type)
     for manager in managers:
         try:
             await dp.bot.copy_message(manager.telegram_id,
@@ -21,6 +24,15 @@ async def copy_to_managers(message: types.Message):
                                       reply_markup=inline_keyboard)
         except Exception as e:
             log(WARN, f"Failed to send to [{manager}] {e}")
+    for admin in admins:
+        try:
+            await dp.bot.copy_message(admin.telegram_id,
+                                      message.chat.id,
+                                      message.message_id,
+                                      "Сообщение от пользователя",
+                                      reply_markup=inline_keyboard)
+        except Exception as e:
+            log(WARN, f"Failed to send to [{admin}] {e}")
 
 
 @dp.callback_query_handler(Regexp('reply_from_anytext_id=([0-9]*)'))
