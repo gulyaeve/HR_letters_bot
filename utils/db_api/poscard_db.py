@@ -12,7 +12,7 @@ class Postcard:
     id: int
     user_id_who_sent: int
     user_id_to_sent: int
-    file_id: str
+    file_id: str | None
     raw_file: bytes
     time_created: datetime.datetime
     time_sended_telegram: datetime.datetime | None

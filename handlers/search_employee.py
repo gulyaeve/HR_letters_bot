@@ -46,7 +46,6 @@ async def search_by_name(message: types.Message):
                     callback_data=f"employee={employee.id}"
                 )
             )
-    logging.info(f"{results=} {inline_keyboard.to_python()['inline_keyboard']=}")
     if len(inline_keyboard.to_python()['inline_keyboard']) > 0:
         await message.answer("Найдено:", reply_markup=inline_keyboard)
     else:
