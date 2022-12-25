@@ -1,4 +1,3 @@
-import io
 import logging
 
 from aiogram import types

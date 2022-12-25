@@ -7,7 +7,8 @@ yes_no = ReplyKeyboardMarkup(
             KeyboardButton(text="Нет")
         ],
     ],
-    resize_keyboard=True
+    resize_keyboard=True,
+    one_time_keyboard=True
     )
 
 choose_auth = ReplyKeyboardMarkup(

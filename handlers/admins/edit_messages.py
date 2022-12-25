@@ -71,7 +71,7 @@ async def choose_content(callback: types.CallbackQuery, state: FSMContext):
 
 @dp.callback_query_handler(text="text_edit", state=TextMessages.Edit)
 async def edit_text(callback: types.CallbackQuery, state: FSMContext):
-    await callback.message.edit_text("Введи новый текст:")
+    await callback.message.answer("Введи новый текст:")
     await TextMessages.SaveText.set()
 
 

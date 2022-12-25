@@ -33,6 +33,16 @@ class Employee:
             result += "💬"
         return result
 
+    def info(self):
+        auth = "🟢Авторизован в боте" if self.telegram_id is not None else "🔴Не авторизован в боте"
+        info = f"{self.full_name()}\n" \
+               f"Телефон: {self.phone}\n" \
+               f"Email: {self.email}\n" \
+               f"День рождения: {self.day_birth}\n" \
+               f"Месяц рождения: {self.month_birth}\n" \
+               f"{auth}"
+        return info
+
 
 class Employees:
     def __init__(self, users: Sequence[Employee]):
@@ -94,8 +104,10 @@ class Staff(Database):
     async def add_employee(self, firstname, lastname, middlename, phone, email, day_birth, month_birth):
         sql = "INSERT INTO staff (firstname, lastname, middlename, phone, email, day_birth, month_birth) " \
               "VALUES($1, $2, $3, $4, $5, $6, $7) returning *"
-        return await self._execute(sql, firstname, lastname, middlename, phone, email, day_birth, month_birth,
-                                   fetchrow=True)
+        result = await self._execute(
+            sql, firstname, lastname, middlename, phone, email, day_birth, month_birth,
+            fetchrow=True)
+        return await self._format_employee(result)
 
     async def select_all_employees(self) -> Employees:
         sql = "SELECT * FROM staff ORDER BY lastname ASC"
@@ -124,3 +136,6 @@ class Staff(Database):
         sql = "SELECT * FROM staff WHERE LOWER(concat(lastname, ' ', firstname)) LIKE '%' || LOWER($1) || '%'"
         list_of_records = await self._execute(sql, keyword, fetch=True)
         return Employees([await self._format_employee(record) for record in list_of_records])
+
+    async def delete_employee(self, id):
+        await self._execute("DELETE FROM staff WHERE id=$1", id, execute=True)
