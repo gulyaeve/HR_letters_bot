@@ -116,7 +116,7 @@ async def save_postcards_to_all(message: types.Message, state: FSMContext):
 @dp.async_task
 async def save_postcards_to_all_2(message: types.Message, state: FSMContext):
     text_to_save = message.text
-    new_year_category: str = 'Новый год'
+    new_year_category: str = 'Новый год'
     images_names = await postcards.get_postcards_list_by_type(new_year_category)
     images = []
     for name in images_names:
