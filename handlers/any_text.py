@@ -4,6 +4,7 @@ from aiogram import types
 
 from aiogram.types import ContentType
 
+from filters import AuthCheck
 from handlers.admins.admins import notify_admins
 from handlers.managers.managers import copy_to_managers
 from loader import dp, messages
@@ -16,12 +17,23 @@ async def add_to_groups(message: types.Message):
                         f"id этой группы <code>{message.chat.id}</code>")
 
 
-@dp.message_handler(content_types=ContentType.ANY)
+@dp.message_handler(AuthCheck(), content_types=ContentType.ANY)
 async def content_handler(message: types.Message):
     """
     Any content handler
     """
     log(INFO, f"[{message.from_user.id=}] отправил: {message.content_type=}")
     await message.answer(await messages.get_message("welcome_help_hint"))
+    # Отправка сообщения менеджерам
+    await copy_to_managers(message)
+
+
+@dp.message_handler(content_types=ContentType.ANY)
+async def content_handler(message: types.Message):
+    """
+    Any content handler
+    """
+    log(INFO, f"[{message.from_user.id=}] отправил: {message.content_type=}")
+    await message.answer(await messages.get_message("auth_mention"))
     # Отправка сообщения менеджерам
     await copy_to_managers(message)
