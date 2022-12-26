@@ -16,7 +16,7 @@ async def help_command(message: types.Message):
 
 
 @dp.message_handler(AuthCheck(), commands=['start'])
-async def cmd_start_user(message: types.Message):
+async def cmd_start_user_with_auth(message: types.Message):
     """
     Conversation's entry point
     """
@@ -24,7 +24,7 @@ async def cmd_start_user(message: types.Message):
     me = await get_bot_info()
     welcome_message = await messages.get_message("welcome")
     await message.reply(welcome_message.format(me.full_name))
-    await message.answer(await messages.get_message("auth_mention"))
+    await message.answer(await messages.get_message("welcome_help_hint"))
 
 
 @dp.message_handler(commands=['start'])
@@ -36,7 +36,7 @@ async def cmd_start_user(message: types.Message):
     me = await get_bot_info()
     welcome_message = await messages.get_message("welcome")
     await message.reply(welcome_message.format(me.full_name))
-    await message.answer(await messages.get_message("welcome_help_hint"))
+    await message.answer(await messages.get_message("auth_mention"))
 
 
 # You can use state '*' if you need to handle all states
