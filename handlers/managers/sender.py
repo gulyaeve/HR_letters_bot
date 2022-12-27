@@ -26,12 +26,14 @@ async def sender_from_db():
             user_who_send = None
         user_to_send = await staff.select_employee(id=postcard.user_id_to_sent)
         log(INFO, f"{postcard.id=} {user_who_send=} {user_to_send=}")
+        file_to_email: bytes
         if postcard.file_id is not None:
             file = await bot.download_file_by_id(postcard.file_id)
             file_to_email = file.getbuffer().tobytes()
         else:
             file = postcard.raw_file
-        log(INFO, f"{type(file)=}")
+            file_to_email = file
+        # log(INFO, f"{type(file)=}")
         me = await get_bot_info()
         log(INFO, f"Try to send {postcard.id=}")
         if user_who_send:
