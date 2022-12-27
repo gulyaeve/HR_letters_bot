@@ -30,6 +30,9 @@ async def sender_from_db():
             file = file.getbuffer().tobytes()
         else:
             file = postcard.raw_file
+            with open(file, "rb") as image:
+                f = image.read()
+                file = bytearray(f)
         me = await get_bot_info()
         if user_who_send:
             if user_to_send.telegram_id is not None:
