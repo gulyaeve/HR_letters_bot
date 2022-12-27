@@ -42,7 +42,7 @@ async def sender_from_db():
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
-                            postcard.file_id if postcard.file_id is not None else postcard.raw_file,
+                            postcard.file_id if postcard.file_id is not None else io.BytesIO(postcard.raw_file),
                             caption=f"{user_who_send.full_name()} отправляет вам открытку"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
@@ -74,7 +74,7 @@ async def sender_from_db():
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
-                            postcard.file_id if postcard.file_id is not None else postcard.raw_file,
+                            postcard.file_id if postcard.file_id is not None else io.BytesIO(postcard.raw_file),
                             caption=f"Вам отправлена анонимная открытка"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
