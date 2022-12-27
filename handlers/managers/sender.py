@@ -145,3 +145,42 @@ async def save_postcards_to_all_2(message: types.Message, state: FSMContext):
 
     await message.answer("Открытки сохранены")
     await state.finish()
+
+
+@dp.message_handler(ManagerCheck(), commands=['everybody_postcard_dir'])
+async def save_postcards_to_all_dir(message: types.Message, state: FSMContext):
+    await message.reply("Введи текст для открытки от директора:")
+    await state.set_state("EVERYBODY_POSTCARD_DIR")
+
+
+@dp.message_handler(state="EVERYBODY_POSTCARD_DIR", content_types=types.ContentType.TEXT)
+@dp.async_task
+async def save_postcards_to_all_dir_2(message: types.Message, state: FSMContext):
+    text_to_save = message.text
+    new_year_category: str = 'Новый год'
+    image_name = 'picture1'
+    image = await postcards.get_postcard(
+        text=text_to_save,
+        category=new_year_category,
+        template=image_name,
+    )
+
+    all_employees = await staff.select_all_employees()
+
+    await message.reply(
+        f"Количество сотрудников: {len(all_employees)}\n"
+        f"Начинаю сохранение открыток."
+    )
+
+    for employee in all_employees:
+        await postcards_db.insert_postcard(
+            user_id_who_sent=176,
+            user_id_to_send=employee.id,
+            file_id=None,
+            raw_file=image,
+        )
+
+    await message.answer("Открытки сохранены")
+    await state.finish()
+
+
