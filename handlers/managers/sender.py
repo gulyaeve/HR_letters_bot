@@ -19,17 +19,19 @@ async def sender_from_db():
     for item in range(postcard_count):
         await asyncio.sleep(randint(10, 15))
         postcard = await postcards_db.select_postcard(item + 1)
-        log(INFO, f"{postcard.id=}")
+        log(INFO, f"prepare {postcard.id=}")
         if postcard.user_id_who_sent != 0:
             user_who_send = await staff.select_employee(id=postcard.user_id_who_sent)
         else:
             user_who_send = None
         user_to_send = await staff.select_employee(id=postcard.user_id_to_sent)
+        log(INFO, f"{postcard.id=} {user_who_send=} {user_to_send=}")
         if postcard.file_id is not None:
             file = await bot.download_file_by_id(postcard.file_id)
             file = file.getbuffer().tobytes()
         else:
             file = postcard.raw_file
+        log(INFO, f"{type(file)=}")
         me = await get_bot_info()
         log(INFO, f"Try to send {postcard.id=}")
         if user_who_send:
