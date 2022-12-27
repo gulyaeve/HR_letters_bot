@@ -28,7 +28,7 @@ async def sender_from_db():
         log(INFO, f"{postcard.id=} {user_who_send=} {user_to_send=}")
         if postcard.file_id is not None:
             file = await bot.download_file_by_id(postcard.file_id)
-            file = file.getbuffer().tobytes()
+            file_to_email = file.getbuffer().tobytes()
         else:
             file = postcard.raw_file
         log(INFO, f"{type(file)=}")
@@ -40,7 +40,7 @@ async def sender_from_db():
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
-                            postcard.file_id if postcard.file_id is not None else file,
+                            postcard.file_id if postcard.file_id is not None else postcard.raw_file,
                             caption=f"{user_who_send.full_name()} отправляет вам открытку"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
@@ -58,7 +58,7 @@ async def sender_from_db():
                             f"{user_who_send.full_name()} отправляет вам открытку.\n"
                             f"Хочешь получать и создавать спасибки в телеграм, "
                             f"авторизуйся здесь >> https://t.me/{me.username}/",
-                            file
+                            file_to_email
                         )
                         log(INFO, f"Success send email [{user_to_send.email}]")
                         await postcards_db.update_date_email_send(postcard.id)
@@ -72,7 +72,7 @@ async def sender_from_db():
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
-                            postcard.file_id if postcard.file_id is not None else file,
+                            postcard.file_id if postcard.file_id is not None else postcard.raw_file,
                             caption=f"Вам отправлена анонимная открытка"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
@@ -90,7 +90,7 @@ async def sender_from_db():
                             f'Вам отправлена анонимная открытка.\n'
                             f'Хочешь получать и создавать спасибки в телеграм, '
                             f'авторизуйся здесь >> https://t.me/{me.username}/',
-                            file
+                            file_to_email
                         )
                         log(INFO, f"Success send email [{user_to_send.email}]")
                         await postcards_db.update_date_email_send(postcard.id)
