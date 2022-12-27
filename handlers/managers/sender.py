@@ -1,5 +1,5 @@
 import asyncio
-import logging
+import io
 import random
 from logging import log, INFO
 from random import randint
@@ -30,17 +30,15 @@ async def sender_from_db():
             file = file.getbuffer().tobytes()
         else:
             file = postcard.raw_file
-            with open(file, "rb") as image:
-                f = image.read()
-                file = bytearray(f)
         me = await get_bot_info()
+        log(INFO, f"Try to send {postcard.id=}")
         if user_who_send:
             if user_to_send.telegram_id is not None:
                 if not postcard.time_sended_telegram:
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
-                            postcard.file_id if postcard.file_id is not None else postcard.raw_file,
+                            postcard.file_id if postcard.file_id is not None else file,
                             caption=f"{user_who_send.full_name()} отправляет вам открытку"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
@@ -72,7 +70,7 @@ async def sender_from_db():
                     try:
                         await bot.send_photo(
                             user_to_send.telegram_id,
-                            postcard.file_id if postcard.file_id is not None else postcard.raw_file,
+                            postcard.file_id if postcard.file_id is not None else file,
                             caption=f"Вам отправлена анонимная открытка"
                         )
                         log(INFO, f"Success send message [{user_to_send.telegram_id}]")
