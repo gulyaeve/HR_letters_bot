@@ -32,7 +32,7 @@ async def sender_from_db():
             file_to_email = file.getbuffer().tobytes()
         else:
             file = postcard.raw_file
-            file_to_email = file
+            file_to_email = bytes(file)
         # log(INFO, f"{type(file)=}")
         me = await get_bot_info()
         log(INFO, f"Try to send {postcard.id=}")
