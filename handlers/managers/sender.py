@@ -27,12 +27,12 @@ async def sender_from_db():
         user_to_send = await staff.select_employee(id=postcard.user_id_to_sent)
         log(INFO, f"{postcard.id=} {user_who_send=} {user_to_send=}")
         file_to_email: bytes
-        if postcard.file_id is not None:
-            file = await bot.download_file_by_id(postcard.file_id)
-            file_to_email = file.getbuffer().tobytes()
+        if postcard.file_id:
+            file = (await bot.download_file_by_id(postcard.file_id)).getbuffer().tobytes()
+            # file_to_email = file.getbuffer().tobytes()
         else:
-            file = postcard.raw_file
-            file_to_email = bytes(file)
+            file = bytes(postcard.raw_file)
+            # file_to_email = bytes(file)
         # log(INFO, f"{type(file)=}")
         me = await get_bot_info()
         log(INFO, f"Try to send {postcard.id=}")
@@ -60,7 +60,7 @@ async def sender_from_db():
                             f"{user_who_send.full_name()} отправляет вам открытку.\n"
                             f"Хочешь получать и создавать спасибки в телеграм, "
                             f"авторизуйся здесь >> https://t.me/{me.username}/",
-                            file_to_email
+                            file
                         )
                         log(INFO, f"Success send email [{user_to_send.email}]")
                         await postcards_db.update_date_email_send(postcard.id)
@@ -92,7 +92,7 @@ async def sender_from_db():
                             f'Вам отправлена анонимная открытка.\n'
                             f'Хочешь получать и создавать спасибки в телеграм, '
                             f'авторизуйся здесь >> https://t.me/{me.username}/',
-                            file_to_email
+                            file
                         )
                         log(INFO, f"Success send email [{user_to_send.email}]")
                         await postcards_db.update_date_email_send(postcard.id)
