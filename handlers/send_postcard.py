@@ -1,3 +1,4 @@
+import io
 import logging
 
 from aiogram import types
@@ -11,6 +12,7 @@ from keyboards.categories import make_inline_categories
 from keyboards.keyboards import request_submit
 from keyboards.postcards_menu import PostcardMenu, PostcardSelector
 from loader import dp, staff, messages, postcards, postcards_db
+from utils.email_sender import send_email_photo
 from utils.utilities import make_keyboard_list, get_bot_info
 
 
@@ -319,16 +321,17 @@ async def send_or_safe_postcard(message: types.Message, state: FSMContext):
     data = await state.get_data()
     sender_id = data['sender_id']
     user_to_send = await staff.select_employee(id=int(data['employee_id_to_sent']))
-    me = await get_bot_info()
     file = await dp.bot.download_file_by_id(data['file_id'])
 
-    await postcards_db.insert_postcard(
+    postcard = await postcards_db.insert_postcard(
         user_id_who_sent=sender_id,
         user_id_to_send=user_to_send.id,
         file_id=data['file_id'],
         raw_file=file.getbuffer().tobytes(),
     )
     logging.info(f"Postcard save to db {sender_id=} {user_to_send=} {data['file_id']=}")
+    await push_postcard(postcard)
+    logging.info(f"Postcard pushed {sender_id=} {user_to_send=} {data['file_id']=}")
 
     # if user_to_send['telegram_id'] is not None:
     #     try:
@@ -351,3 +354,84 @@ async def send_or_safe_postcard(message: types.Message, state: FSMContext):
     await message.reply(await messages.get_message("postcard_sended"),
                         reply_markup=types.ReplyKeyboardRemove())
     await state.finish()
+
+
+async def push_postcard(postcard):
+    logging.info(f"prepare {postcard.id=}")
+    if postcard.user_id_who_sent != 0:
+        user_who_send = await staff.select_employee(id=postcard.user_id_who_sent)
+    else:
+        user_who_send = None
+    user_to_send = await staff.select_employee(id=postcard.user_id_to_sent)
+    logging.info(f"{postcard.id=} {user_who_send=} {user_to_send=}")
+    # if postcard.file_id:
+    #     file = (await bot.download_file_by_id(postcard.file_id)).getbuffer().tobytes()
+    # else:
+    file = bytes(postcard.raw_file)
+    # logging.info(f"{type(file)=}")
+    me = await get_bot_info()
+    logging.info(f"Try to send {postcard.id=}")
+    if user_who_send:
+        if user_to_send.telegram_id is not None:
+            if not postcard.time_sended_telegram:
+                try:
+                    await dp.bot.send_photo(
+                        user_to_send.telegram_id,
+                        postcard.file_id if postcard.file_id is not None else io.BytesIO(postcard.raw_file),
+                        caption=f"{user_who_send.full_name()} отправляет вам открытку"
+                    )
+                    logging.info(f"Success send message [{user_to_send.telegram_id}]")
+                    await postcards_db.update_date_telegram_send(postcard.id)
+                except:
+                    logging.info(f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
+            else:
+                logging.info(f"[{postcard.id}] уже была отправлена {postcard.time_sended_telegram=}")
+        if user_to_send.email is not None:
+            if not postcard.time_sended_email:
+                try:
+                    await send_email_photo(
+                        user_to_send.email,
+                        'Вам отправлена открытка',
+                        f"{user_who_send.full_name()} отправляет вам открытку.\n"
+                        f"Хочешь получать и создавать спасибки в телеграм, "
+                        f"авторизуйся здесь >> https://t.me/{me.username}/",
+                        file
+                    )
+                    logging.info(f"Success send email [{user_to_send.email}]")
+                    await postcards_db.update_date_email_send(postcard.id)
+                except:
+                    logging.info(f"Failed send email [{user_to_send.email}]")
+            else:
+                logging.info(f"[{postcard.id}] уже была отправлена {postcard.time_sended_email=}")
+    else:
+        if user_to_send.telegram_id is not None:
+            if not postcard.time_sended_telegram:
+                try:
+                    await dp.bot.send_photo(
+                        user_to_send.telegram_id,
+                        postcard.file_id if postcard.file_id is not None else io.BytesIO(postcard.raw_file),
+                        caption=f"Вам отправлена анонимная открытка"
+                    )
+                    logging.info(f"Success send message [{user_to_send.telegram_id}]")
+                    await postcards_db.update_date_telegram_send(postcard.id)
+                except:
+                    logging.info(f"Failed send message [{user_to_send.telegram_id}] [{postcard.file_id}]")
+            else:
+                logging.info(f"[{postcard.id}] уже была отправлена {postcard.time_sended_telegram=}")
+        if user_to_send.email is not None:
+            if not postcard.time_sended_email:
+                try:
+                    await send_email_photo(
+                        user_to_send.email,
+                        'Вам отправлена открытка',
+                        f'Вам отправлена анонимная открытка.\n'
+                        f'Хочешь получать и создавать спасибки в телеграм, '
+                        f'авторизуйся здесь >> https://t.me/{me.username}/',
+                        file
+                    )
+                    logging.info(f"Success send email [{user_to_send.email}]")
+                    await postcards_db.update_date_email_send(postcard.id)
+                except:
+                    logging.info(f"Failed send email [{user_to_send.email}]")
+            else:
+                logging.info(f"[{postcard.id}] уже была отправлена {postcard.time_sended_email=}")

@@ -56,7 +56,8 @@ class PostcardsDB(Database):
     async def insert_postcard(self, user_id_who_sent, user_id_to_send, file_id, raw_file):
         sql = "INSERT INTO postcards (user_id_who_sent, user_id_to_sent, file_id, raw_file)" \
               " VALUES ($1, $2, $3, $4) returning *"
-        return await self._execute(sql, user_id_who_sent, user_id_to_send, file_id, raw_file, fetchrow=True)
+        result = await self._execute(sql, user_id_who_sent, user_id_to_send, file_id, raw_file, fetchrow=True)
+        return await self._format_postcard(result)
 
     async def count_postcards(self):
         sql = "SELECT COUNT(*) FROM postcards"
