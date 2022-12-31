@@ -12,6 +12,7 @@ from utils.utilities import make_dict_output
 async def choose_action(callback: types.CallbackQuery):
     await callback.message.delete()
     user_id = int(callback.data.split("=")[1])
+    user = await users.select_user(user_id)
     inline_keyboard = types.InlineKeyboardMarkup()
     inline_keyboard.add(
         types.InlineKeyboardButton(
@@ -21,12 +22,18 @@ async def choose_action(callback: types.CallbackQuery):
     )
     inline_keyboard.add(
         types.InlineKeyboardButton(
+            text="Отправить личное сообщение 💬",
+            callback_data=f"private_msg={user_id}"
+        )
+    )
+    inline_keyboard.add(
+        types.InlineKeyboardButton(
             text="Информация ℹ️",
             callback_data=f"user_info={user_id}"
         )
     )
     inline_keyboard.add(types.InlineKeyboardButton(text="◀️", callback_data="back_to_main_admin_menu"))
-    await callback.message.answer("Выберите действие:", reply_markup=inline_keyboard)
+    await callback.message.answer(f"Выберите действие над {user.full_name}:", reply_markup=inline_keyboard)
 
 
 @dp.callback_query_handler(Text(startswith="set_user="))
@@ -67,28 +74,30 @@ async def get_user_info(callback: types.CallbackQuery):
     user_id = int(callback.data.split("=")[1])
     info_from_dp = await users.select_user(user_id)
     info_from_telegram = await dp.bot.get_chat(user_id)
-    photo = info_from_telegram.photo.big_file_id
     useful_info_from_telegram = info_from_telegram.to_python()
     del useful_info_from_telegram['photo']
-    file = await dp.bot.download_file_by_id(photo)
     answer = f"<b>Информация из моей базы:</b>\n{info_from_dp.get_info()}\n" \
              f"<b>Информация из телеграм:</b>\n{make_dict_output(useful_info_from_telegram)}"
     inline_keyboard = types.InlineKeyboardMarkup()
-    inline_keyboard.add(
-        types.InlineKeyboardButton(
-            text="Отправить личное сообщение 💬",
-            callback_data=f"private_msg={user_id}"
-        )
-    )
     inline_keyboard.add(
         types.InlineKeyboardButton(
             text="⏮",
             callback_data=f"user={user_id}",
         )
     )
-    await callback.message.answer_photo(photo=file.getbuffer().tobytes(),
-                                        caption=answer,
-                                        reply_markup=inline_keyboard)
+    if info_from_telegram.photo is not None:
+        photo = info_from_telegram.photo.big_file_id
+        file = await dp.bot.download_file_by_id(photo)
+        await callback.message.answer_photo(
+            photo=file.getbuffer().tobytes(),
+            caption=answer,
+            reply_markup=inline_keyboard
+        )
+    else:
+        await callback.message.answer(
+            text=answer,
+            reply_markup=inline_keyboard
+        )
 
 
 @dp.callback_query_handler(Regexp('private_msg=([0-9]*)'))
