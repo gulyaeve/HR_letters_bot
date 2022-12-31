@@ -75,7 +75,8 @@ async def get_user_info(callback: types.CallbackQuery):
     info_from_dp = await users.select_user(user_id)
     info_from_telegram = await dp.bot.get_chat(user_id)
     useful_info_from_telegram = info_from_telegram.to_python()
-    del useful_info_from_telegram['photo']
+    if info_from_telegram.photo is not None:
+        del useful_info_from_telegram['photo']
     answer = f"<b>Информация из моей базы:</b>\n{info_from_dp.get_info()}\n" \
              f"<b>Информация из телеграм:</b>\n{make_dict_output(useful_info_from_telegram)}"
     inline_keyboard = types.InlineKeyboardMarkup()
