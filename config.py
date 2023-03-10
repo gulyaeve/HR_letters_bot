@@ -5,6 +5,7 @@ env.read_env()
 
 
 class Config:
+    proxy_url = env.str("PROXY_URL") if env.str("PROXY_URL") else ""
     # Telegram auth:
     telegram_token = env.str("TELEGRAM_API_TOKEN")
 
