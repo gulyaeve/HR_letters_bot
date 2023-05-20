@@ -18,7 +18,8 @@ def get_page_table_json():
     confluence = Confluence(
         url=Config.confluence_url,
         username=Config.confluence_login,
-        password=Config.confluence_pass
+        password=Config.confluence_pass,
+        proxies={"http": Config.proxy_url, "https": Config.proxy_url} if Config.proxy_url else {},
     )
     page = confluence.get_page_by_id(
         page_id=Config.confluence_page_id,
