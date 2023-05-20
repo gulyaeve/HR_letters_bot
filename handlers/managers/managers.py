@@ -8,6 +8,21 @@ from config import Config
 from loader import dp, users
 
 
+async def notify_managers(message: str):
+    manager_user_type = await users.select_user_type("manager")
+    managers = await users.select_users_by_type(manager_user_type)
+    for manager in managers:
+        try:
+            await dp.bot.send_message(manager.telegram_id, message)
+        except Exception as e:
+            log(INFO, f"Failed to notify Manager [{manager.telegram_id}] ({e})")
+    for bot_admin in Config.bot_admins:
+        try:
+            await dp.bot.send_message(bot_admin, message)
+        except Exception as e:
+            log(INFO, f"Failed to notify Admin [{bot_admin}] ({e})")
+
+
 async def copy_to_managers(message: types.Message):
     inline_keyboard = InlineKeyboardMarkup(inline_keyboard=[[
         InlineKeyboardButton(text="Ответить", callback_data=f'reply_from_anytext_id={message.from_user.id}')]])

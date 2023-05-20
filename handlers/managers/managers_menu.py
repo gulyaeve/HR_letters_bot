@@ -7,7 +7,7 @@ from keyboards.manager import ManagersMenu
 from loader import dp, messages
 
 
-@dp.message_handler(ManagerCheck(), commands=['manage'])
+@dp.message_handler(ManagerCheck(), commands=['manage', 'manager'])
 async def admin_start(message: types.Message):
     logging.info(f"{message.from_user.id=} passed to admin menu")
     await message.answer(

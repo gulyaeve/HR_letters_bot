@@ -30,6 +30,10 @@ async def get_users_file() -> types.InputFile:
     return types.InputFile(io.BytesIO(make_bytes(answer, filename)), filename)
 
 
+async def make_file(input_string: str, filename: str = "text.txt") -> types.InputFile:
+    return types.InputFile(io.BytesIO(make_bytes(input_string, filename)), filename)
+
+
 def make_keyboard_dict(buttons: dict):
     keyboard = types.ReplyKeyboardMarkup()
     for button in buttons.values():

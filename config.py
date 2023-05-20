@@ -1,11 +1,14 @@
-from environs import Env
+from environs import Env, EnvError
 
 env = Env()
 env.read_env()
 
 
 class Config:
-    proxy_url = env.str("PROXY_URL") if env.str("PROXY_URL") else ""
+    try:
+        proxy_url = env.str("PROXY_URL")
+    except EnvError:
+        proxy_url = ""
     # Telegram auth:
     telegram_token = env.str("TELEGRAM_API_TOKEN")
 
@@ -33,3 +36,9 @@ class Config:
     REDIS_PORT = env.int("REDIS_PORT")
 
     POSTCARDS_HOST = env.str("POSTCARDS_HOST")
+
+    # Confluence
+    confluence_url = env.str("CONFLUENCE_URL")
+    confluence_login = env.str("CONFLUENCE_LOGIN")
+    confluence_pass = env.str("CONFLUENCE_PASS")
+    confluence_page_id = env.int("PAGE_ID")

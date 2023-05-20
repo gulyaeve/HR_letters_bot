@@ -29,6 +29,12 @@ async def select_employee(callback: types.CallbackQuery):
             callback_data=f'manager_employee_delete'
         )
     )
+    inline_keyboard.add(
+        types.InlineKeyboardButton(
+            text="Синхронизировать с confluence",
+            callback_data=f'manager_employee_sync'
+        )
+    )
 
     await callback.message.edit_text(
         await messages.get_message('manager_staff_menu'),
