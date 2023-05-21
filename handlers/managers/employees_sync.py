@@ -11,7 +11,6 @@ from handlers.admins.admins import file_to_admins, notify_admins
 from handlers.managers.managers import notify_managers, file_to_managers
 from loader import dp, users
 from utils.staff_from_confluence import make_sync
-from utils.utilities import make_file
 
 
 class HRCsv(StatesGroup):
