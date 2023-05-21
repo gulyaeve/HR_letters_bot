@@ -1,4 +1,6 @@
+import csv
 import datetime
+import io
 import json
 import logging
 import re
@@ -12,6 +14,19 @@ from loader import staff
 from utils.db_api.staff import Employee, Employees
 
 months = ['январь', 'февраль', 'март', 'апрель', 'май', 'июнь', 'июль', 'август', 'сентябрь', 'октябрь', 'ноябрь', 'декабрь']
+
+
+def get_json_from_csv(file):
+    with open(file, newline='', encoding="utf-8") as csvfile:
+        reader = csv.DictReader(csvfile)
+        values = []
+        for row in reader:
+            for key, item in row.items():
+                row[key] = item
+                if item.isdigit():
+                    row[key] = int(item)
+            values.append(row)
+    return json.dumps(values, ensure_ascii=False, indent=4)
 
 
 def get_page_table_json():
@@ -44,8 +59,8 @@ def get_page_table_json():
     return json.dumps(result, ensure_ascii=False, indent=4)
 
 
-def get_employees_from_confluence():
-    staff = json.loads(get_page_table_json())
+def format_employees(staff_json: str):
+    staff = json.loads(staff_json)
     all_employees = []
     for index, employee in enumerate(staff):
         person = Employee(
@@ -63,9 +78,11 @@ def get_employees_from_confluence():
     return Employees(all_employees)
 
 
-async def make_sync():
+async def make_sync(file_name):
+    staff_json = get_json_from_csv(file_name)
+    staff_from_page = format_employees(staff_json)
     staff_from_db = await staff.select_all_employees()
-    staff_from_page = get_employees_from_confluence()
+
     report = f"Отчёт по синхронизации таблицы confluence и базы бота от {datetime.datetime.now()}\n\n"
     emails_from_db = [employee_db.email.lower() for employee_db in staff_from_db]
     emails_from_page = [employee_page.email.lower() for employee_page in staff_from_page]

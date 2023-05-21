@@ -9,6 +9,16 @@ from keyboards.admin import AdminsMenu
 from loader import dp, messages, users
 
 
+async def file_to_admins(file):
+    admin_user_type = await users.select_user_type("admin")
+    admins = await users.select_users_by_type(admin_user_type)
+    for admin in admins:
+        try:
+            await dp.bot.send_document(admin.telegram_id, file)
+        except Exception as e:
+            log(INFO, f"Failed to notify Admin [{admin.telegram_id}] ({e})")
+
+
 async def notify_admins(message: str):
     admin_user_type = await users.select_user_type("admin")
     admins = await users.select_users_by_type(admin_user_type)
