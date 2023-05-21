@@ -14,7 +14,7 @@ async def file_to_admins(file):
     admins = await users.select_users_by_type(admin_user_type)
     for admin in admins:
         try:
-            await dp.bot.send_document(admin.telegram_id, file)
+            await dp.bot.send_document(admin.telegram_id, types.InputFile(file))
         except Exception as e:
             log(INFO, f"Failed to notify Admin [{admin.telegram_id}] ({e})")
 

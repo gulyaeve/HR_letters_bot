@@ -13,7 +13,7 @@ async def file_to_managers(file):
     managers = await users.select_users_by_type(manager_user_type)
     for manager in managers:
         try:
-            await dp.bot.send_document(manager.telegram_id, file)
+            await dp.bot.send_document(manager.telegram_id, types.InputFile(file))
         except Exception as e:
             log(INFO, f"Failed to notify Manager [{manager.telegram_id}] ({e})")
 

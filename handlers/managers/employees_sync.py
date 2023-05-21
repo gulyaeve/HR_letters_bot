@@ -39,11 +39,16 @@ async def make_synchronization(message: types.Message, state: FSMContext):
             destination_file=f"temp/{file_name}.csv",
         )
         report = await make_sync(f"temp/{file_name}.csv")
-        file = await make_file(report, f"report_{current_datetime}.txt")
+
         await notify_managers(f"{user.full_name} выполнил синхронизацию базы бота и таблицы confluence")
         await notify_admins(f"{user.full_name} выполнил синхронизацию базы бота и таблицы confluence")
-        await file_to_managers(file)
-        await file_to_admins(file)
+
+        report_file = f"temp/report_{current_datetime}.txt"
+        with open(report_file, "w") as file:
+            file.write(report)
+        await file_to_managers(report_file)
+        await file_to_admins(report_file)
+
         await state.finish()
     else:
         return await message.answer("Мне нужен файл csv")
